@@ -46,8 +46,7 @@ function matlab_motracking()
 % Create system objects used for reading video, detecting moving objects,
 % and displaying the results.
 obj = setupSystemObjects();
-rcnn_model = setup_rcnn();
-
+% rcnn_model = setup_rcnn();
 
 tracks = initializeTracks(); % Create an empty array of tracks.
 
@@ -66,9 +65,10 @@ while ~isDone(obj.reader)
     deleteLostTracks();
     createNewTracks();
 
-    [bboxes, labels] = cal_label_bbox();
-    rcnn_detect_bbox();
+    % [bboxes, labels] = cal_label_bbox();
+    % rcnn_detect_bbox();
 
+    [bboxes, labels] = cal_label_bbox();
     displayTrackingResults();
 end
 
@@ -83,7 +83,7 @@ end
         % objects in each frame, and playing the video.
 
         % Create a video file reader.
-        obj.reader = vision.VideoFileReader('video.avi');
+        obj.reader = vision.VideoFileReader('atrium.avi');
 
         % Create two video players, one to display the video,
         % and one to display the foreground mask.
@@ -384,8 +384,8 @@ end
     end
 
     function [bboxes, labels] = cal_label_bbox()
-      minVisibleCount = 8;
-      if ~isempty(tracks)
+        minVisibleCount = 8;
+        if ~isempty(tracks)
 
           % Noisy detections tend to result in short-lived tracks.
           % Only display tracks that have been visible for more than
@@ -396,7 +396,7 @@ end
 
           % Display the objects. If an object has not been detected
           % in this frame, display its predicted bounding box.
-          if ~isempty(reliableTracks)
+            if ~isempty(reliableTracks)
               % Get bounding boxes.
               bboxes = cat(1, reliableTracks.bbox);
 
@@ -412,20 +412,20 @@ end
               isPredicted = cell(size(labels));
               isPredicted(predictedTrackInds) = {' predicted'};
               labels = strcat(labels, isPredicted);
-          end
-      end
+            end
+        end
     end
 
     function rcnn_model = setup_rcnn()
-      model_choice = 'PASCAL';
-      use_gpu = false;
-      rcnn_model = load_rcnn_model(model_choice, use_gpu);
+        model_choice = 'PASCAL';
+        use_gpu = false;
+        rcnn_model = load_rcnn_model(model_choice, use_gpu);
     end
 
     function rcnn_detect_bbox()
-      boxes = selective_search_refine(frame, bboxes);
-      % boxes = selective_search_origin(frame, bbox);
-      all_dets = find_all_dets(frame, boxes, rcnn_model);
+        boxes = selective_search_refine(frame, bboxes);
+        % boxes = selective_search_origin(frame, bbox);
+        all_dets = find_all_dets(frame, boxes, rcnn_model);
     end
 
 %% Summary
