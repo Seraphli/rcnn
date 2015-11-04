@@ -83,7 +83,7 @@ end
         % objects in each frame, and playing the video.
 
         % Create a video file reader.
-        obj.reader = vision.VideoFileReader('atrium.avi');
+        obj.reader = vision.VideoFileReader('video.avi');
 
         % Create two video players, one to display the video,
         % and one to display the foreground mask.
@@ -385,6 +385,8 @@ end
 
     function [bboxes, labels] = cal_label_bbox()
         minVisibleCount = 8;
+        bboxes = [];
+        labels = [];
         if ~isempty(tracks)
 
           % Noisy detections tend to result in short-lived tracks.
