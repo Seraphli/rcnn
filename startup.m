@@ -25,4 +25,6 @@ addpath('experiments');
 addpath('imdb');
 addpath('vis/pool5-explorer');
 addpath('examples');
+addpath('bbox_detect');
+addpath('video_data');
 fprintf('R-CNN startup done\n');
