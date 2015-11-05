@@ -67,7 +67,7 @@ while ~isDone(obj.reader)
 
     [bboxes, labels] = cal_label_bbox();
     if ~isempty(bboxes)
-        bboxes  = selective_search_refine(frame, bboxes);
+        ss_bboxes  = selective_search_refine(frame, bboxes);
     end
     % all_dets = rcnn_detect_bbox();
     displayTrackingResults();
@@ -84,7 +84,7 @@ end
         % objects in each frame, and playing the video.
 
         % Create a video file reader.
-        obj.reader = vision.VideoFileReader('video2.avi');
+        obj.reader = vision.VideoFileReader('video3.avi');
 
         % Create two video players, one to display the video,
         % and one to display the foreground mask.
