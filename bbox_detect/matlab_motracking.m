@@ -65,10 +65,11 @@ while ~isDone(obj.reader)
     deleteLostTracks();
     createNewTracks();
 
-    % [bboxes, labels] = cal_label_bbox();
-    % rcnn_detect_bbox();
-
     [bboxes, labels] = cal_label_bbox();
+    if ~isempty(bboxes)
+        bboxes  = selective_search_refine(frame, bboxes);
+    end
+    % all_dets = rcnn_detect_bbox();
     displayTrackingResults();
 end
 
@@ -83,7 +84,7 @@ end
         % objects in each frame, and playing the video.
 
         % Create a video file reader.
-        obj.reader = vision.VideoFileReader('video.avi');
+        obj.reader = vision.VideoFileReader('video2.avi');
 
         % Create two video players, one to display the video,
         % and one to display the foreground mask.
@@ -420,14 +421,19 @@ end
 
     function rcnn_model = setup_rcnn()
         model_choice = 'PASCAL';
-        use_gpu = false;
+        use_gpu = true;
         rcnn_model = load_rcnn_model(model_choice, use_gpu);
     end
 
-    function rcnn_detect_bbox()
-        boxes = selective_search_refine(frame, bboxes);
-        % boxes = selective_search_origin(frame, bbox);
-        all_dets = find_all_dets(frame, boxes, rcnn_model);
+    function all_dets = rcnn_detect_bbox()
+        th = tic();
+        all_dets = [];
+        if ~isempty(bboxes)
+            boxes = selective_search_refine(frame, bboxes);
+            % boxes = selective_search_origin(frame, bboxes);
+            all_dets = find_all_dets(frame, boxes, rcnn_model);
+        end
+        fprintf('detect %d candidates (in %.3fs).\n', size(all_dets,1), toc(th));
     end
 
 %% Summary
