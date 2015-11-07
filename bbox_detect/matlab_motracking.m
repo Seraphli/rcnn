@@ -79,9 +79,6 @@ while ~isDone(obj.reader)
     % end
     all_dets = rcnn_detect_bbox();
     displayTrackingResults();
-    if frame_i == 218
-        pause;
-    end
 end
 
 
@@ -439,10 +436,22 @@ end
     function all_dets = rcnn_detect_bbox()
         th = tic();
         all_dets = [];
+        if frame_i <= 275
+            return
+        end
         if ~isempty(bboxes)
             boxes = selective_search_refine(u_frame, bboxes);
             % boxes = selective_search_origin(u_frame, bboxes);
             all_dets = find_all_dets(u_frame, boxes, rcnn_model);
+            for i = 1 : size(all_dets, 1)
+                cls = rcnn_model.classes{all_dets(i, 1)};
+                det_bbox = bbox_pos2rect(double(all_dets(i, 2:5)));
+                idx = find_near_bbox(bboxes, det_bbox, 30);
+                if idx
+                    bboxes(idx, :) = det_bbox;
+                    labels(idx) = {sprintf('%s %s', labels{idx}, cls)};
+                end
+            end
         end
         fprintf('detect %d candidates (in %.3fs).\n', size(all_dets,1), toc(th));
     end
