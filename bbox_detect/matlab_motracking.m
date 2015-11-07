@@ -45,16 +45,24 @@ function matlab_motracking()
 
 % Create system objects used for reading video, detecting moving objects,
 % and displaying the results.
+video_name = 'atrium';
+video_fn = [video_name '.avi'];
 obj = setupSystemObjects();
-% rcnn_model = setup_rcnn();
+rcnn_model = setup_rcnn();
 
 tracks = initializeTracks(); % Create an empty array of tracks.
 
 nextId = 1; % ID of the next track
 
+frame_i = 0;
+
 % Detect moving objects, and track them across video frames.
 while ~isDone(obj.reader)
     frame = readFrame();
+    frame_i = frame_i + 1;
+    u_frame = imread(sprintf('./video_data/%s/%04d.jpg',...
+        video_name, frame_i));
+    fprintf('Processing %d frame\n', frame_i);
     [centroids, bboxes, mask] = detectObjects(frame);
     predictNewLocationsOfTracks();
     [assignments, unassignedTracks, unassignedDetections] = ...
@@ -66,11 +74,14 @@ while ~isDone(obj.reader)
     createNewTracks();
 
     [bboxes, labels] = cal_label_bbox();
-    if ~isempty(bboxes)
-        ss_bboxes  = selective_search_refine(frame, bboxes);
-    end
-    % all_dets = rcnn_detect_bbox();
+    % if ~isempty(bboxes)
+        % ss_bboxes  = selective_search_refine(frame, bboxes);
+    % end
+    all_dets = rcnn_detect_bbox();
     displayTrackingResults();
+    if frame_i == 218
+        pause;
+    end
 end
 
 
@@ -84,7 +95,7 @@ end
         % objects in each frame, and playing the video.
 
         % Create a video file reader.
-        obj.reader = vision.VideoFileReader('video3.avi');
+        obj.reader = vision.VideoFileReader(video_fn);
 
         % Create two video players, one to display the video,
         % and one to display the foreground mask.
@@ -429,9 +440,9 @@ end
         th = tic();
         all_dets = [];
         if ~isempty(bboxes)
-            boxes = selective_search_refine(frame, bboxes);
-            % boxes = selective_search_origin(frame, bboxes);
-            all_dets = find_all_dets(frame, boxes, rcnn_model);
+            boxes = selective_search_refine(u_frame, bboxes);
+            % boxes = selective_search_origin(u_frame, bboxes);
+            all_dets = find_all_dets(u_frame, boxes, rcnn_model);
         end
         fprintf('detect %d candidates (in %.3fs).\n', size(all_dets,1), toc(th));
     end

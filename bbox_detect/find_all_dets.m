@@ -1,10 +1,13 @@
 function all_dets = find_all_dets(im, boxes, rcnn_model)
   thresh = -1;
+  % extract features from candidates (one row per candidate box)
   feat = rcnn_features(im, boxes, rcnn_model);
   feat = rcnn_scale_features(feat, rcnn_model.training_opts.feat_norm_mean);
 
+  % compute scores for each candidate [num_boxes x num_classes]
   scores = bsxfun(@plus, feat*rcnn_model.detectors.W, rcnn_model.detectors.B);
 
+  % apply NMS to each class and return final scored detections
   num_classes = length(rcnn_model.classes);
   dets = cell(num_classes, 1);
   for i = 1:num_classes
