@@ -24,5 +24,5 @@ function all_dets = find_all_dets(im, boxes, rcnn_model)
   end
 
   [~, ord] = sort(all_dets(:,end), 'descend');
-  all_dets = all_dets(all_dets(:, end) > 0);
+  all_dets = all_dets(all_dets(:, end) > 0, :);
 end
