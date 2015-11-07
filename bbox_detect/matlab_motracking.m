@@ -79,6 +79,7 @@ while ~isDone(obj.reader)
     % end
     all_dets = rcnn_detect_bbox();
     displayTrackingResults();
+    save_img();
 end
 
 
@@ -436,9 +437,6 @@ end
     function all_dets = rcnn_detect_bbox()
         th = tic();
         all_dets = [];
-        if frame_i <= 275
-            return
-        end
         if ~isempty(bboxes)
             boxes = selective_search_refine(u_frame, bboxes);
             % boxes = selective_search_origin(u_frame, bboxes);
@@ -454,6 +452,14 @@ end
             end
         end
         fprintf('detect %d candidates (in %.3fs).\n', size(all_dets,1), toc(th));
+    end
+
+    %% save_img: save debug image
+    function save_img()
+        folder = 'debug/';
+        fn = sprintf('%04d.jpg', frame_i);
+        imwrite(frame, [folder 'frame/' fn]);
+        imwrite(mask, [folder 'mask/' fn]);
     end
 
 %% Summary
